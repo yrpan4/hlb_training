@@ -676,6 +676,58 @@ class LoadImagesAndLabels(Dataset):
 
             self.batch_shapes = np.ceil(np.array(shapes) * img_size / stride + pad).astype(int) * stride
 
+        # Initialize attribute structures (always create these so get_attrs works even when cache_images is False)
+        # attributes_mapping: mapping from S name (or id) -> {"id": int, "symmetry": str, "vein_color": str}
+        self.attributes_by_id = {}
+        self.image_attrs = [None] * len(self.im_files)
+        if attributes_path:
+            try:
+                with open(attributes_path, "r", encoding="utf-8") as f:
+                    attrs = json.load(f)
+                # build mapping from numeric id -> attribute dict
+                for k, v in attrs.items():
+                    if isinstance(v, dict) and "id" in v:
+                        try:
+                            self.attributes_by_id[int(v["id"]) ] = v
+                        except Exception:
+                            # tolerate non-integer ids
+                            continue
+                # build per-image attrs based on majority class in each image (if any)
+                for i, labels_i in enumerate(self.labels):
+                    if labels_i.size:
+                        classes = labels_i[:, 0].astype(int)
+                        # majority class
+                        cls = int(np.bincount(classes).argmax())
+                        a = self.attributes_by_id.get(cls, None)
+                    else:
+                        a = None
+                    # convert to vector: [sym_mask, sym_label, vein_mask, vein_label]
+                    if a is None:
+                        vec = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+                    else:
+                        # symmetry: symmetric -> label 0 ; asymmetric -> label 1
+                        sym = a.get("symmetry", "unknown")
+                        if sym == "symmetric":
+                            sym_mask, sym_label = 1.0, 0.0
+                        elif sym == "asymmetric":
+                            sym_mask, sym_label = 1.0, 1.0
+                        else:
+                            sym_mask, sym_label = 0.0, 0.0
+                        # vein_color: green -> 0 ; yellow -> 1
+                        vein = a.get("vein_color", "unknown")
+                        if vein == "green":
+                            vein_mask, vein_label = 1.0, 0.0
+                        elif vein == "yellow":
+                            vein_mask, vein_label = 1.0, 1.0
+                        else:
+                            vein_mask, vein_label = 0.0, 0.0
+                        vec = np.array([sym_mask, sym_label, vein_mask, vein_label], dtype=np.float32)
+                    self.image_attrs[i] = vec
+            except Exception:
+                # silently ignore attribute loading errors to preserve backward compatibility
+                self.attributes_by_id = {}
+                self.image_attrs = [np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float32)] * len(self.im_files)
+
         # Cache images into RAM/disk for faster training
         if cache_images == "ram" and not self.check_cache_ram(prefix=prefix):
             cache_images = False
