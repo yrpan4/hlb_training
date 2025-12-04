@@ -3,7 +3,7 @@
 # S-class: Disease type (S1-S14)
 # Attributes: symmetry (symmetric/asymmetric) and vein_color (green/yellow)
 
-path: D:\rrp\CITYU\CS5187VisionAndImage\Project\test\3B  # dataset root
+path: .  # dataset root: parent of `yolov5` (resolved to ROOT.parent by utils.general.check_dataset)
 train: 
   - trains/A-train/A-train/S1/images
   - trains/A-train/A-train/S2/images

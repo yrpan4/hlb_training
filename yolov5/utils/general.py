@@ -542,7 +542,13 @@ def check_dataset(data, autodownload=True):
     # Resolve paths
     path = Path(extract_dir or data.get("path") or "")  # optional 'path' default to '.'
     if not path.is_absolute():
-        path = (ROOT / path).resolve()
+        # Prefer the parent directory of the `yolov5` package as the dataset root
+        # (common project layout: parent/{trains,tests} contains dataset folders).
+        alt = (ROOT.parent / path).resolve()
+        if alt.exists():
+            path = alt
+        else:
+            path = (ROOT / path).resolve()
         data["path"] = path  # download scripts
     for k in "train", "val", "test":
         if data.get(k):  # prepend path
