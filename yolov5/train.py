@@ -440,31 +440,38 @@ def train(hyp, opt, device, callbacks):
                     attr_targets = dataset.get_attrs(paths)  # (B, 4)
                     attr_targets = attr_targets.to(device)
                     
-                    # Extract backbone features for attribute prediction
-                    # Get the last layer before Detect head
+                    # Extract backbone features using a hook to capture intermediate output
+                    # before Detect head (last layer in m.model)
+                    feat_list = []
+                    def hook_fn(module, input, output):
+                        feat_list.append(output)
+                    
                     m = de_parallel(model) if isinstance(model, torch.nn.DataParallel) else model
-                    last_layer_idx = -2  # layer before Detect
+                    # Register hook on the second-to-last layer (before Detect)
+                    hook = m.model[-2].register_forward_hook(hook_fn)
                     
-                    # Forward through backbone to get features
-                    x_feat = imgs
-                    for i, layer in enumerate(m.model):
-                        if i == len(m.model) - 1:  # stop before Detect
-                            break
-                        x_feat = layer(x_feat)
-                    
-                    # Global average pooling (works with any spatial size)
-                    if isinstance(x_feat, list):
-                        x_feat = x_feat[-1]
-                    feat_pooled = torch.nn.functional.adaptive_avg_pool2d(x_feat, (1, 1)).squeeze(-1).squeeze(-1)
-                    
-                    # Attribute head forward
-                    sym_logits, vein_logits = attr_head(feat_pooled)
-                    
-                    # Compute attribute loss
-                    attr_loss, _ = compute_attr_loss(sym_logits, vein_logits, attr_targets)
-                    
-                    # Combine losses
-                    loss = loss + attr_loss
+                    try:
+                        # Re-forward through model to capture features
+                        with torch.no_grad():
+                            _ = model(imgs)
+                        
+                        x_feat = feat_list[-1] if feat_list else torch.zeros(imgs.shape[0], 128, 1, 1, device=device)
+                        
+                        # Global average pooling (works with any spatial size)
+                        if isinstance(x_feat, (list, tuple)):
+                            x_feat = x_feat[-1] if x_feat else torch.zeros(imgs.shape[0], 128, 1, 1, device=device)
+                        feat_pooled = torch.nn.functional.adaptive_avg_pool2d(x_feat, (1, 1)).squeeze(-1).squeeze(-1)
+                        
+                        # Attribute head forward
+                        sym_logits, vein_logits = attr_head(feat_pooled)
+                        
+                        # Compute attribute loss
+                        attr_loss, _ = compute_attr_loss(sym_logits, vein_logits, attr_targets)
+                        
+                        # Combine losses
+                        loss = loss + attr_loss
+                    finally:
+                        hook.remove()  # cleanup hook
                 
                 if RANK != -1:
                     loss *= WORLD_SIZE  # gradient averaged between devices in DDP mode
