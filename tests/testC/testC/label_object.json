@@ -1,0 +1,62 @@
+[
+  {
+    "id": 0,
+    "name": "S0 others"
+  },
+  {
+    "id": 1,
+    "name": "S1 Healthy fruit"
+  },
+  {
+    "id": 2,
+    "name": "S2 Healthy leaf"
+  },
+  {
+    "id": 3,
+    "name": "S3 Blotchy mottling"
+  },
+  {
+    "id": 4,
+    "name": "S4 Red nose fruit"
+  },
+  {
+    "id": 5,
+    "name": "S5 Zinc deficiency"
+  },
+  {
+    "id": 6,
+    "name": "S6 Vein yellowing"
+  },
+  {
+    "id": 7,
+    "name": "S7 Uniform yellowing"
+  },
+  {
+    "id": 8,
+    "name": "S8 Magnesium deficiency"
+  },
+  {
+    "id": 9,
+    "name": "S9 Boron deficiency"
+  },
+  {
+    "id": 10,
+    "name": "S10 Anthracnose"
+  },
+  {
+    "id": 11,
+    "name": "S11 Citrus greasy spot"
+  },
+  {
+    "id": 12,
+    "name": "S14 Canker"
+  },
+  {
+    "id": 13,
+    "name": "S13 Sooty mould"
+  },
+  {
+    "id": 14,
+    "name": "S12 Algal spot"
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "S0": { "id": 0, "name": "S0 others", "symmetry": "unknown", "vein_color": "unknown" },
+  "S1": { "id": 1, "name": "S1 Healthy fruit", "symmetry": "unknown", "vein_color": "unknown" },
+  "S2": { "id": 2, "name": "S2 Healthy leaf", "symmetry": "unknown", "vein_color": "unknown" },
+  "S3": { "id": 3, "name": "S3 Blotchy mottling", "symmetry": "asymmetric", "vein_color": "unknown" },
+  "S4": { "id": 4, "name": "S4 Red nose fruit", "symmetry": "unknown", "vein_color": "unknown" },
+  "S5": { "id": 5, "name": "S5 Zinc deficiency", "symmetry": "asymmetric", "vein_color": "unknown" },
+  "S6": { "id": 6, "name": "S6 Vein yellowing", "symmetry": "unknown", "vein_color": "yellow" },
+  "S7": { "id": 7, "name": "S7 Uniform yellowing", "symmetry": "unknown", "vein_color": "unknown" },
+  "S8": { "id": 8, "name": "S8 Magnesium deficiency", "symmetry": "symmetric", "vein_color": "unknown" },
+  "S9": { "id": 9, "name": "S9 Boron deficiency", "symmetry": "symmetric", "vein_color": "unknown" },
+  "S10": { "id": 10, "name": "S10 Anthracnose", "symmetry": "unknown", "vein_color": "unknown" },
+  "S11": { "id": 11, "name": "S11 Citrus greasy spot", "symmetry": "unknown", "vein_color": "unknown" },
+  "S12": { "id": 14, "name": "S12 Algal spot / moss", "symmetry": "unknown", "vein_color": "unknown" },
+  "S13": { "id": 13, "name": "S13 Sooty mould", "symmetry": "unknown", "vein_color": "unknown" },
+  "S14": { "id": 12, "name": "S14 Canker", "symmetry": "unknown", "vein_color": "unknown" }
+}
