@@ -1,0 +1,47 @@
+# HLB Multi-Task Learning Dataset
+# YOLOv5 dataset config with multi-class leaf disease detection and attribute learning
+# S-class: Disease type (S1-S14)
+# Attributes: symmetry (symmetric/asymmetric) and vein_color (green/yellow)
+
+path: D:\rrp\CITYU\CS5187VisionAndImage\Project\test\3B  # dataset root
+train: 
+  - trains/A-train/A-train/S1/images
+  - trains/A-train/A-train/S2/images
+  - trains/B-train/B-train/S3/images
+  - trains/B-train/B-train/S4/images
+  - trains/C-train/C-train/S5/images
+  - trains/C-train/C-train/S6/images
+  - trains/C-train/C-train/S7/images
+  - trains/D-train/D-train/S8/images
+  - trains/D-train/D-train/S9/images
+  - trains/D-train/D-train/S10/images
+  - trains/D-train/D-train/S11/images
+  - trains/D-train/D-train/S12/images
+  - trains/E-train/E-train/S13/images
+  - trains/E-train/E-train/S14/images
+
+val:
+  - tests/testA/testA/images
+  - tests/testB/testB/images
+  - tests/testC/testC/images
+
+# Number of classes
+nc: 15  # S0-S14
+
+# Class names
+names:
+  0: S0_others
+  1: S1_Healthy_fruit
+  2: S2_Healthy_leaf
+  3: S3_Blotchy_mottling
+  4: S4_Red_nose_fruit
+  5: S5_Zinc_deficiency
+  6: S6_Vein_yellowing
+  7: S7_Uniform_yellowing
+  8: S8_Magnesium_deficiency
+  9: S9_Boron_deficiency
+  10: S10_Anthracnose
+  11: S11_Citrus_greasy_spot
+  12: S12_Algal_spot
+  13: S13_Sooty_mould
+  14: S14_Canker
