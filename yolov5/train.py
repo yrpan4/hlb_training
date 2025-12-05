@@ -343,14 +343,38 @@ def train(hyp, opt, device, callbacks):
     compute_attr_loss = None
     attr_optimizer = None
     if opt.attributes:
-        attr_head = AttributeHead(in_channels=256, hidden_dim=128, dropout=0.5).to(device)
+        # Auto-detect feature dimension by running a forward pass through the backbone
+        m = de_parallel(model) if isinstance(model, torch.nn.DataParallel) else model
+        with torch.no_grad():
+            # Create dummy input to infer feature size
+            dummy_input = torch.randn(1, 3, imgsz, imgsz, device=device)
+            feat_list = []
+            def hook_fn(module, input, output):
+                feat_list.append(output)
+            hook = m.model[-2].register_forward_hook(hook_fn)
+            try:
+                _ = model(dummy_input)
+                if feat_list:
+                    x_feat = feat_list[-1]
+                    if isinstance(x_feat, (list, tuple)):
+                        x_feat = x_feat[-1]
+                    # Global average pooling to get feature dimension
+                    feat_dim = torch.nn.functional.adaptive_avg_pool2d(x_feat, (1, 1)).shape[1]
+                else:
+                    feat_dim = 256  # fallback
+            except Exception:
+                feat_dim = 256  # fallback
+            finally:
+                hook.remove()
+        
+        attr_head = AttributeHead(in_channels=feat_dim, hidden_dim=128, dropout=0.5).to(device)
         compute_attr_loss = ComputeAttributeLoss(attr_weight=3.0, device=device)
         # Create optimizer for attribute head (with lower lr)
         attr_optimizer = torch.optim.SGD(attr_head.parameters(), lr=hyp["lr0"] * 0.1, momentum=hyp["momentum"], weight_decay=hyp["weight_decay"])
         if RANK != -1:
             attr_head = torch.nn.SyncBatchNorm.convert_sync_batchnorm(attr_head) if cuda else attr_head
             attr_head = smart_DDP(attr_head)
-        LOGGER.info("Attribute head initialized for multi-task learning")
+        LOGGER.info(f"Attribute head initialized for multi-task learning (feat_dim={feat_dim})")
 
     # Model attributes
     nl = de_parallel(model).model[-1].nl  # number of detection layers (to scale hyps)

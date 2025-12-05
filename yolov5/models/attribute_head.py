@@ -26,8 +26,11 @@ class AttributeHead(nn.Module):
         # Global average pooling will be applied before this head
         # Input: (B, in_channels) after GAP
         
+        # Projection layer to normalize feature dimension to 256 (in case actual input differs)
+        self.proj = nn.Linear(in_channels, 256) if in_channels != 256 else nn.Identity()
+        
         # Shared feature extraction
-        self.fc1 = nn.Linear(in_channels, hidden_dim)
+        self.fc1 = nn.Linear(256, hidden_dim)
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(dropout)
         
@@ -57,6 +60,9 @@ class AttributeHead(nn.Module):
             sym_logits: (B, 2) logits for symmetry
             vein_logits: (B, 2) logits for vein_color
         """
+        # Project input to standard dimension
+        x = self.proj(x)
+        
         # Shared feature extraction
         x = self.fc1(x)
         x = self.relu(x)
